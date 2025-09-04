@@ -1,17 +1,26 @@
 package thoneSpring.sexy.model;
 
+import java.util.UUID;
+import java.time.Instant;
+
 public class User {
-    private Long id;
+    private UUID id;
     private String username;
     private String email;
 
     public User() {}
 
-    publig Long getId() {
+    public User(UUID id, String username, String email) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+    }
+
+    public UUID getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
