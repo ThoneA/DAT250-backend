@@ -8,6 +8,7 @@ public class VoteOption {
     private UUID id;
     private String caption;
     private int presentationOrder;
+    private int votes;
 
     public VoteOption() {}
 
@@ -15,6 +16,7 @@ public class VoteOption {
         this.id = id;
         this.caption = caption;
         this.presentationOrder = presentationOrder;
+        this.votes = 0;
     }
 
     public UUID getId() {
@@ -39,6 +41,14 @@ public class VoteOption {
 
     public void setPresentationOrder(int presentationOrder) {
         this.presentationOrder = presentationOrder;
+    }
+
+    public int getVotes() {
+        return votes;
+    }
+
+    public void setVotes(int votes) {
+        this.votes = votes;
     }
 }
 

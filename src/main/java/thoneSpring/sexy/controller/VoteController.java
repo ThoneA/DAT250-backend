@@ -7,6 +7,7 @@ import thoneSpring.sexy.service.PollManager;
 import java.util.Collection;
 import java.util.UUID;
 
+@CrossOrigin(origins = "http://localhost:5173/")
 @RestController
 @RequestMapping("/votes")
 public class VoteController {

@@ -49,6 +49,13 @@ public class PollManager {
         if (poll.getId() == null) {
             poll.setId(UUID.randomUUID());
         }
+        for (VoteOption option : poll.getOptions()) {
+            if (option.getId() == null) {
+                option.setId(UUID.randomUUID());
+            }
+            option.setVotes(0);
+            options.put(option.getId(), option);
+        }
         polls.put(poll.getId(), poll);
         return poll;
     }

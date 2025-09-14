@@ -1,6 +1,7 @@
 package thoneSpring.sexy.model;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -51,5 +52,15 @@ public class Poll {
     public void setValidUntil(Instant validUntil) {
         this.validUntil = validUntil;
     }
+
+    private List<VoteOption> options = new ArrayList<>();
+
+    public List<VoteOption> getOptions() {
+        return options;
+    }
+
+    public void setOptions(List<VoteOption> options) {
+        this.options = options;
+    }   
 
 }

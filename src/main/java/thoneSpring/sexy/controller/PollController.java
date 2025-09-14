@@ -3,10 +3,12 @@ package thoneSpring.sexy.controller;
 import org.springframework.web.bind.annotation.*;
 import thoneSpring.sexy.model.Poll;
 import thoneSpring.sexy.service.PollManager;
+import thoneSpring.sexy.model.VoteOption;
 
 import java.util.Collection;
 import java.util.UUID;
 
+@CrossOrigin(origins = "http://localhost:5173/")
 @RestController
 @RequestMapping("/polls")
 public class PollController {
@@ -41,4 +43,48 @@ public class PollController {
     public boolean deletePoll(@PathVariable UUID id) {
         return pollManager.deletePoll(id);
     }
+
+    @PostMapping("/{id}/vote")
+    public Poll voteOnPoll(@PathVariable UUID id, @RequestBody VoteRequest voteRequest) {
+        UUID optionId = voteRequest.getOptionId();
+        int delta = voteRequest.getDelta();
+
+        Poll poll = pollManager.getPoll(id);
+        if (poll == null) {
+            throw new RuntimeException("Poll not found");
+        }
+
+        VoteOption option = pollManager.getVoteOption(optionId);
+        if (option == null) {
+            throw new RuntimeException("Option not found");
+        }
+
+        int newVotes = option.getVotes() + delta;
+        option.setVotes(Math.max(0, newVotes));
+
+        pollManager.updateVoteOption(option.getId(), option);
+
+        return poll;
+    }
+
+        public static class VoteRequest {
+            private UUID optionId;
+            private int delta;
+
+            public UUID getOptionId() {
+                return optionId;
+            }
+
+            public void setOptionId(UUID optionId) {
+                this.optionId = optionId;
+            }
+
+            public int getDelta() {
+                return delta;
+            }
+
+            public void setDelta(int delta) {
+                this.delta = delta;
+            }
+        }
 }
