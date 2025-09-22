@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import thoneSpring.sexy.model.Poll;
 import thoneSpring.sexy.service.PollManager;
 import thoneSpring.sexy.model.VoteOption;
+import thoneSpring.sexy.model.Vote;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -59,11 +60,19 @@ public class PollController {
             throw new RuntimeException("Option not found");
         }
 
-        int newVotes = option.getVotes() + delta;
-        option.setVotes(Math.max(0, newVotes));
+        int currentVotes = option.getVotes().size();
 
-        pollManager.updateVoteOption(option.getId(), option);
-
+        if (delta > 0) {
+            for (int i = 0; i < delta; i++) {
+                Vote vote = new Vote();
+                vote.setVoteOption(option);
+                option.getVotes().add(vote);
+            }
+        } else if (delta < 0) {
+            for (int i = 0; i < -delta && !option.getVotes().isEmpty(); i++) {
+                option.getVotes().remove(option.getVotes().size() - 1);
+            }
+        }
         return poll;
     }
 

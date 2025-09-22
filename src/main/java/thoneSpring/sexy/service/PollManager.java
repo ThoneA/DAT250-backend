@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.ArrayList;
 
 @Component
 public class PollManager {
@@ -53,7 +54,7 @@ public class PollManager {
             if (option.getId() == null) {
                 option.setId(UUID.randomUUID());
             }
-            option.setVotes(0);
+            option.setVotes(new ArrayList<>());
             options.put(option.getId(), option);
         }
         polls.put(poll.getId(), poll);

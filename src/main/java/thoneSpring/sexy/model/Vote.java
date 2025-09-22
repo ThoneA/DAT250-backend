@@ -1,19 +1,33 @@
 package thoneSpring.sexy.model;
 
+import jakarta.persistence.*;
 import java.util.UUID;
 import java.time.Instant;
 
+@Entity
+@Table(name = "votes")
 public class Vote{
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+
     private Instant publishedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "vote_option_id")
+    private VoteOption voteOption;
 
     public Vote() {}
 
-    public Vote(UUID id, Instant publishedAt) {
-        this.id = id;
-        this.publishedAt = publishedAt;
-    }
+    // public Vote(UUID id, Instant publishedAt) {
+    //     this.id = id;
+    //     this.publishedAt = publishedAt;
+    // }
 
     public UUID getId() {
         return id;
@@ -23,12 +37,28 @@ public class Vote{
         this.id = id;
     }
 
+    public void setPublishedAt(Instant publishedAt) {
+        this.publishedAt = publishedAt;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public Instant getPublishedAt() {
         return publishedAt;
     }
 
-    public void setPublishedAt(Instant publishedAt) {
-        this.publishedAt = publishedAt;
+    public VoteOption getVoteOption() {
+        return voteOption;
+    }
+
+    public void setVoteOption(VoteOption voteOption) {
+        this.voteOption = voteOption;
     }
 }
 

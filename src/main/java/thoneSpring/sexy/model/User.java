@@ -1,19 +1,48 @@
 package thoneSpring.sexy.model;
 
+import jakarta.persistence.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.UUID;
-import java.time.Instant;
 
+
+@Entity
+@Table(name = "users")
 public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
     private String username;
     private String email;
 
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Poll> createdBy = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)  
+    private Set<Vote> votes = new LinkedHashSet<>();
+
     public User() {}
 
-    public User(UUID id, String username, String email) {
-        this.id = id;
+    public User(String username, String email) {
         this.username = username;
         this.email = email;
+        this.createdBy = new LinkedHashSet<>();
+    }
+
+    public Poll createPoll(String question) {
+        Poll poll = new Poll();
+        poll.setQuestion(question);
+        poll.setCreator(this);
+        createdBy.add(poll);
+        return poll;
+    }
+
+    public Vote voteFor(VoteOption option) {
+        Vote vote = new Vote();
+        vote.setVoteOption(option);
+        vote.setUser(this);
+        return vote;
     }
 
     public UUID getId() {
@@ -38,5 +67,13 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Set<Poll> getCreated() {
+        return createdBy;
+    }
+
+    public void setCreated(Set<Poll> createdBy) {
+        this.createdBy = createdBy;
     }
 }
