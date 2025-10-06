@@ -13,6 +13,8 @@ public class Vote{
     private UUID id;
 
     private Instant publishedAt;
+    private UUID pollId;
+    private UUID votedOn;   
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -23,12 +25,7 @@ public class Vote{
     private VoteOption voteOption;
 
     public Vote() {}
-
-    // public Vote(UUID id, Instant publishedAt) {
-    //     this.id = id;
-    //     this.publishedAt = publishedAt;
-    // }
-
+    
     public UUID getId() {
         return id;
     }
@@ -59,6 +56,22 @@ public class Vote{
 
     public void setVoteOption(VoteOption voteOption) {
         this.voteOption = voteOption;
+    }
+
+    public UUID getPollId() {
+        return pollId;
+    }
+
+    public void setPollId(UUID pollId) {
+        this.pollId = pollId;
+    }
+
+    public UUID getVotedOn() {
+        return votedOn;
+    }
+
+    public void setVotedOn(UUID votedOn) {
+        this.votedOn = votedOn;
     }
 }
 

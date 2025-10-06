@@ -1,27 +1,32 @@
 package thoneSpring.sexy.service;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import thoneSpring.sexy.model.*;
+import java.util.*;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.BeforeEach;
-import static org.junit.jupiter.api.Assertions.*;
-
-import thoneSpring.sexy.model.User;
-import thoneSpring.sexy.model.Poll;
-
 import java.time.Instant;
-import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest
 class PollManagerTests {
 
     private PollManager pollManager;
+    private CacheService cacheService;
 
     @BeforeEach
     void
     setup() {
-        pollManager = new PollManager();
+        cacheService = new CacheService();
+        pollManager = new PollManager(cacheService);
     }   
+
+    @AfterEach
+    void tearDown() {
+        cacheService.close();
+    }
 
  // USER TEST
     @Test
@@ -40,23 +45,6 @@ class PollManagerTests {
         assertNotNull(found, "User should be found by ID");
         assertEquals(saved.getId(), found.getId());
     }
-
-    // @Test
-    // void testUpdateUser() {
-    //     User user = new User();
-    //     user.setUsername("anlaug");
-    //     user.setEmail("anlaug@example.com");
-    //     User saved = pollManager.addUser(user);
-
-    //     User updated = new User();
-    //     updated.setUsername("anlaug_updated");
-    //     updated.setEmail("anlaug@updated.com");
-
-    //     User result = pollManager.updateUser(saved.getId(), updated);
-    //     assertNotNull(result, "Updated user should not be null");
-    //     assertEquals("anlaug_updated", result.getUsername());
-    //     assertEquals("saved.getId()", result.getId(), "ID should remain the same");
-    // }
 
 // POLL TEST
     @Test
@@ -107,6 +95,37 @@ class PollManagerTests {
         assertTrue(deleted, "Poll should be deleted");
         assertNull(pollManager.getPoll(saved.getId()), "Poll should no longer exist");
     }
+
+    // CACHING TEST
+    
+    // @Test
+    // void testPollResultsCachingAndInvalidation() {
+    //     // Create poll and options
+    //     Poll poll = new Poll();
+    //     poll.setTitle("Test Poll");
+    //     VoteOption option1 = new VoteOption();
+    //     option1.setName("Option 1");
+    //     VoteOption option2 = new VoteOption();
+    //     option2.setName("Option 2");
+    //     poll.setOptions(Arrays.asList(option1, option2));
+    //     pollManager.addPoll(poll);
+
+    //     // No votes yet
+    //     Map<String, Integer> results = pollManager.getPollResults(poll.getId());
+    //     assertEquals(0, results.get("Option 1"));
+    //     assertEquals(0, results.get("Option 2"));
+
+    //     // Add a vote
+    //     Vote vote = new Vote();
+    //     vote.setPollId(poll.getId());
+    //     vote.setVotedOn(option1.getId());
+    //     pollManager.addVote(vote);
+
+    //     // Results should be recalculated and cache invalidated
+    //     Map<String, Integer> resultsAfterVote = pollManager.getPollResults(poll.getId());
+    //     assertEquals(1, resultsAfterVote.get("Option 1"));
+    //     assertEquals(0, resultsAfterVote.get("Option 2"));
+    // }
 }
 
 

@@ -1,6 +1,7 @@
 package thoneSpring.sexy.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.UUID;
 import java.time.Instant;
 import java.util.List;
@@ -19,19 +20,13 @@ public class VoteOption {
 
     @ManyToOne
     @JoinColumn(name = "poll_id")
+    @JsonIgnore // lagt til fordi det skaper sirkulær referanse ved serialisering
     private Poll poll;
 
     @OneToMany(mappedBy = "voteOption", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Vote> votes = new ArrayList<>();
 
     public VoteOption() {}
-
-    // public VoteOption(UUID id, String caption, int presentationOrder) {
-    //     this.id = id;
-    //     this.caption = caption;
-    //     this.presentationOrder = presentationOrder;
-    //     this.votes = 0;
-    // }
 
     public UUID getId() {
         return id;

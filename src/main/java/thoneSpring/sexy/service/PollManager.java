@@ -1,6 +1,7 @@
 package thoneSpring.sexy.service;
 
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 import thoneSpring.sexy.model.Poll;
 import thoneSpring.sexy.model.User;
 import thoneSpring.sexy.model.Vote;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @Component
 public class PollManager {
@@ -18,8 +20,12 @@ public class PollManager {
     private final Map<UUID, Poll> polls = new HashMap<>();
     private final Map<UUID, Vote> votes = new HashMap<>();
     private final Map<UUID, VoteOption> options = new HashMap<>();
+    private final CacheService cacheService;
 
-    public PollManager() {}
+    @Autowired
+    public PollManager(CacheService cacheService) {
+        this.cacheService = cacheService;
+    }
 
     public User addUser(User user) {
         if (user.getId() == null) {
@@ -36,15 +42,6 @@ public class PollManager {
     public Collection<User> getAllUsers() {
         return users.values();
     }
-
-    // public User updateUser(UUID id, User user) {
-    //     if (!users.containsKey(id)) {
-    //         return null;
-    //     }
-    //     user.setId(id);
-    //     users.put(id, user);
-    //     return user;
-    // }
 
     public Poll addPoll(Poll poll) {
         if (poll.getId() == null) {
@@ -84,12 +81,16 @@ public class PollManager {
 
 // VOTE
     public Vote addVote(Vote vote) {
-            if (vote.getId() == null) {
-                vote.setId(UUID.randomUUID());
-            }
-            votes.put(vote.getId(), vote);
-            return vote;
+        if (vote.getId() == null) {
+            vote.setId(UUID.randomUUID());
         }
+        votes.put(vote.getId(), vote);
+        // Invalidate cache for poll
+        if (vote.getPollId() != null) {
+            cacheService.invalidatePollResults(vote.getPollId().toString());
+        }
+        return vote;
+    }
 
     public Vote getVote(UUID id) {
         return votes.get(id);
@@ -140,5 +141,35 @@ public class PollManager {
 
     public boolean deleteVoteOption(UUID id) {
         return options.remove(id) != null;
+    }
+
+// CACHING
+    private Map<String, Integer> queryPollResultsFromDB(UUID pollId) {
+        Poll poll = polls.get(pollId);
+        if (poll == null) {
+            return new HashMap<>();
+        }
+        return poll.getOptions().stream()
+                .collect(Collectors.toMap(
+                    VoteOption::getCaption,
+                    option -> option.getVotes() != null ? option.getVotes().size() : 0
+                ));
+    }
+
+     public Map<String, Integer> getPollResults(UUID pollId) {
+        // Try cache first
+        Map<String, String> cached = cacheService.getPollResults(pollId.toString());
+        if (cached != null && !cached.isEmpty()) {
+            // Convert String values to Integer
+            return cached.entrySet().stream()
+                .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    e -> Integer.parseInt(e.getValue())
+                ));
+        }
+        // Not cached, compute and cache
+        Map<String, Integer> results = queryPollResultsFromDB(pollId);
+        cacheService.setPollResults(pollId.toString(), results, 60); // TTL 60s
+        return results;
     }
 }
