@@ -20,10 +20,11 @@ public class VoteOption {
 
     @ManyToOne
     @JoinColumn(name = "poll_id")
-    @JsonIgnore // lagt til fordi det skaper sirkulær referanse ved serialisering
+ 
     private Poll poll;
 
     @OneToMany(mappedBy = "voteOption", cascade = CascadeType.ALL, orphanRemoval = true)
+    @com.fasterxml.jackson.annotation.JsonManagedReference
     private List<Vote> votes = new ArrayList<>();
 
     public VoteOption() {}

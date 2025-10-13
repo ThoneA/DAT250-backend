@@ -22,6 +22,7 @@ public class Vote{
 
     @ManyToOne
     @JoinColumn(name = "vote_option_id")
+    @com.fasterxml.jackson.annotation.JsonBackReference
     private VoteOption voteOption;
 
     public Vote() {}
