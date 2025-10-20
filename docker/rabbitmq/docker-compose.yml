@@ -1,16 +1,71 @@
-version: '3.8'
+# version: '3.8'
+
+# services:
+#   rabbitmq:
+#     #   image: rabbitmq:latest
+#     image: rabbitmq:management
+#     container_name: rabbitmq
+#     ports:
+#       - "5672:5672"
+#       - "15672:15672"  # Management UI
+#     environment:
+#       RABBITMQ_DEFAULT_USER: guest
+#       RABBITMQ_DEFAULT_PASS: guest
+#     volumes:
+#       - rabbitmq_data:/var/lib/rabbitmq
+
+#   backend:
+#     image: dat250-backend
+#     container_name: dat250-backend
+#     ports:
+#       - "8080:8080"
+#     depends_on:
+#       - rabbitmq
+#     environment:
+#       SPRING_RABBITMQ_HOST: rabbitmq
+#       SPRING_RABBITMQ_PORT: 5672
+#       SPRING_RABBITMQ_USERNAME: guest
+#       SPRING_RABBITMQ_PASSWORD: guest
+
+# volumes:
+#   rabbitmq_data:
+
+# version: '3.8'
 
 services:
   rabbitmq:
-    image: rabbitmq:latest
+    image: rabbitmq:4.1-management
+    container_name: rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672"     # RabbitMQ messaging port
+      - "15672:15672"   # RabbitMQ management web UI
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  dat250-backend:
+    build:
+      context: ../..          # Go up two levels to reach the Dockerfile in project root
+      dockerfile: Dockerfile  # Explicitly point to your Dockerfile
+    container_name: dat250-backend
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    restart: on-failure
 
 volumes:
   rabbitmq_data:
